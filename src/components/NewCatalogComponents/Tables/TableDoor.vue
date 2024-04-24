@@ -20,6 +20,8 @@
                             <th>price</th>
                             <th>url</th>
                             <th>group-id</th>
+                            <th>custom_price</th>
+                            <th>combos</th>
                             <th class="justify-content-center">action</th>
                         </tr>
                     </thead>
@@ -30,6 +32,10 @@
                             <td>{{ door.price }}</td>
                             <td>{{ door.url }}</td>
                             <td>{{ door.catalog_child_id }}</td>
+                            <td>{{ door.custom_price || 'null' }}</td>
+                            <td>
+                                <router-link class="text-primary" to="/admin/door_combos/1">combo</router-link>
+                            </td>
                             <td class="row justify-content-center">
                                 <button @click="action('Изменить', door)"
                                     class="btn col-3 btn-warning mr-3 nc-icon nc-settings-90"></button>

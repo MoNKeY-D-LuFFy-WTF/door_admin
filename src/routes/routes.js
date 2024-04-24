@@ -15,6 +15,7 @@ import Application from 'src/pages/Application.vue'
 import Catalog from 'src/pages/Catalog.vue'
 import CatalogChild from 'src/pages/CatalogChild.vue'
 import Category from 'src/pages/Category.vue'
+import DoorCombo from '../pages/DoorCombo.vue'
 
 
 const routes = [
@@ -87,6 +88,11 @@ const routes = [
         path: 'category/:id',
         name: 'category',
         component: Category
+      },
+      {
+        path: 'door_combos/:id',
+        name: 'door_combos',
+        component: DoorCombo
       }
     ]
   },

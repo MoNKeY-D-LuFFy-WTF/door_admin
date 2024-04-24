@@ -73,14 +73,6 @@
                         {{ systemOpen.name }}
                     </label>
                 </div>
-                <div v-if="show.opens.length" class="opens">
-                    <label class="open" v-for="open in show.opens" :key="open.id" :for="open.id + open.name">
-                        {{ open.name }} {{ open.price }}
-                        <input :checked="data.combo !== undefined ? data.combo.open.id == open.id : false"
-                            @change="changeRadio('open', $event)" :value="JSON.stringify(open)" type="radio" name="open"
-                            :id="open.id + open.name">
-                    </label>
-                </div>
             </div>
             <div class="mb-3">
                 <label for="">Толщина стены</label>
@@ -92,14 +84,7 @@
                         {{ thick.name }}
                     </label>
                 </div>
-                <div v-if="show.thicks.length" class="opens">
-                    <label class="open" v-for="thick in show.thicks" :key="thick.id" :for="thick.id + thick.name">
-                        {{ thick.name }} {{ thick.price }}
-                        <input :checked="data.combo !== undefined ? data.combo.thick.id == thick.id : false"
-                            @change="changeRadio('thick', $event)" :value="JSON.stringify(thick)" type="radio"
-                            name="thick" :id="thick.id + thick.name">
-                    </label>
-                </div>
+
             </div>
             <div class="mb-3">
                 <label for="">Остекление</label>
@@ -171,40 +156,18 @@
                 </li>
 
                 <li class="ml-3">Остекление двери <em>{{ form.window === 'yes' ? 'Есть 600 руб.' : 'Нет' }}</em> </li>
-                <li class="ml-3">Звукоизоляция двери <em>{{ form.soung === 'yes' ? 'Доступно 500 руб.' : 'Нет' }}</em>
+                <li class="ml-3">
+                    Звукоизоляция двери <em>{{ form.soung === 'yes' ? 'Доступно 500 руб.' : 'Нет' }}</em>
                 </li>
-                <li v-if="show.totalPrice" class="ml-3 bg-dark p-3">
-                    Цена по материалам <b>(по умолчанию)</b> КОМБО
-                    <ul>
-                        <li>Цена за полотно {{ form.price }} руб.</li>
-                        <li v-if="form.material">
-                            Цена за материала покрытия {{ form.material.name }}
-                            <em>{{ form.material.price }}</em> руб.
-                        </li>
-                        <li v-if="form.status">
-                            Цена за статус двери
-                            {{ form.status.name }} <em>{{ form.status.price }}</em> руб.
-                        </li>
-                        <li v-if="form.color">
-                            Цвет покрытия
-                            {{ form.color.name }} <em>{{ form.color.price }}</em> руб.
-                        </li>
-                        <li v-if="form.open">
-                            Цена за систему открывания
-                            {{ form.open.name }} <em> {{ form.open.price }}</em> руб.</li>
-                        <li v-if="form.thick">
-                            Цена за толщину стены
-                            {{ form.thick.name }} <em>{{ form.thick.price }}</em> руб.</li>
-                        <li v-if="form.window">Цена за остекление {{ form.window === 'yes' ? '600' : '0' }} руб.</li>
-                        <li v-if="form.soung">Цена за звукоизоляцию {{ form.soung === 'yes' ? '500' : '0' }} руб.</li>
-                        <li v-if="form.discount">Скидка {{ form.discount }}%</li>
-                        <div class="d-flex align-items-center">
-                            <input v-model.number="form.total_price" class="form-control w-25 mr-3" type="number">
-                            <button class="btn btn-primary" @click.prevent="сalculateTotalPrice(form.total_price)">
-                                Комбо
-                            </button>
-                        </div>
-                    </ul>
+                <li class="ml-3">
+                    Обшяя цена двери (учитевая материалы):
+                    <span v-if="!show_total_price">
+                        <em>{{ total_price }}</em> руб.
+                        <a class="btn btn-warning mx-3" @click.prevent="show_total_price = true">Изментиь</a>
+                    </span>
+                    <span v-else>
+                        <input class="p-1" v-model="total_price" type="number"> руб.
+                    </span>
                 </li>
             </ul>
             <ul v-if="errors.length" class="alert alert-danger">
@@ -238,31 +201,19 @@ export default {
                 name: null,
                 url: null,
                 price: null,
-                discount: "0",
+                discount: null,
                 status: null,
                 materials: [],
-                material: null,
                 colors: [],
-                color: null,
                 opens: [],
-                open: null,
                 thicks: [],
-                thick: null,
                 window: null,
                 soung: null,
                 price_discount: null,
                 catalog_child_id: null,
-                total_price: 0,
             },
-            show: {
-                opens: [],
-                thicks: [],
-                totalPrice: false,
-            },
-            combo: {
-                showName: false,
-                price: null,
-            },
+            total_price: null,
+            show_total_price: false,
             response: {},
             errors: [],
         }
@@ -289,32 +240,22 @@ export default {
             if (!this.form.materials.length) {
                 this.errors.push('Выберите материалы покрития двери');
             }
-            if (!this.form.material) {
-                this.errors.push('Выберите материал покрития двери');
-            }
+
             if (!this.form.color) {
                 this.errors.push('Выберите цвет покрития двери');
             }
             if (!this.form.opens.length) {
                 this.errors.push('Выберите системы отркывания двери');
             }
-            if (!this.form.open) {
-                this.errors.push('Выберите систему отркывания двери');
-            }
+
             if (!this.form.thicks.length) {
                 this.errors.push('Выберите толщину двери');
-            }
-            if (!this.form.thick) {
-                this.errors.push('Выберите толщину для комбинации двери');
             }
             if (this.form.window == null) {
                 this.errors.push('Выберите остекления двери');
             }
             if (!this.form.soung == null) {
                 this.errors.push('Выберите звукоизоляцию двери');
-            }
-            if (this.form.total_price == 0 || !this.form.total_price == null) {
-                this.errors.push('Выберить цену для комбо дыери');
             }
             if (!this.errors.length) {
                 if (param === 'Изменить') {
@@ -325,6 +266,7 @@ export default {
                     axios.post(`http://127.0.0.1:8000/api/doors/${this.data.id}/update`,
                         {
                             form: this.form,
+                            custom_price: this.total_price,
                         }
                     )
                         .then(res => {
@@ -339,11 +281,17 @@ export default {
                         'http://127.0.0.1:8000/api/doors',
                         {
                             form: this.form,
+                            custom_price: this.total_price,
                         }
                     )
                         .then(res => {
                             this.response = res.data;
-                        }).finally(fin => {
+                            console.log(res);
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        })
+                        .finally(fin => {
                             return this.$emit('returnData', false, this.response);
                         });
 
@@ -354,9 +302,7 @@ export default {
         },
         renameData() {
             if (Object.keys(this.data).length) {
-                if (this.data.combo.id !== undefined) {
-                    this.data.combo = JSON.parse(this.data.combo.combo);
-                }
+
                 this.form.name = this.data.name;
                 this.form.url = this.data.url;
                 this.form.price = this.data.price;
@@ -365,33 +311,17 @@ export default {
                 this.data.door_materials.forEach(mat => this.form.materials.push(mat.material))
                 this.data.door_materials.forEach(mat => this.form.colors.push(...mat.material.door_colors));
                 this.form.color = this.data.door_color;
-                this.form.material = this.data.door_materials.filter(mat => mat.door_material_id == this.data.door_color.door_material_id)[0].material;
                 this.data.door_open_system.forEach(open => this.form.opens.push(open.open_system));
-                this.data.door_open_system.forEach(open => this.show.opens.push(open.open_system));
-                this.form.open = this.data.combo.open;
-                this.data.door_thick.forEach(thick => this.form.thicks.push(thick.thick))
-                this.data.door_thick.forEach(thick => this.show.thicks.push(thick.thick));
+                this.data.door_thick.forEach(thick => this.form.thicks.push(thick.thick));
+                this.form.window = 'no';
+                this.form.soung = 'no';
 
-                this.form.thick = this.data.combo.thick;
-
-                this.form.thick = this.data.combo.thick;
-                this.form.window = this.data.window || 0;
-                this.form.soung = this.data.soung || 0;
-                this.form.price_discount = this.form.color.price + this.form.material.price + this.form.price + this.form.opens[0].price + this.form.status.price + this.form.thicks[0].price;
-                if (this.form.soung) {
-                    this.form.price_discount += 600;
+                if (this.data.window) {
+                    this.form.window = 'yes'
                 }
-                if (this.form.window) {
-                    this.form.price_discount += 500;
+                if (this.data.soung) {
+                    this.form.soung = 'yes'
                 }
-                if (this.data.discount) {
-                    this.form.price_discount = Math.round(this.form.price_discount - (this.form.price_discount * this.data.discount / 100));
-                }
-                if (this.data.combo) {
-                    this.form.total_price = this.data.combo.total_price;
-                }
-                console.log(this.form);
-                // price_discount: null,
 
             }
             this.form.catalog_child_id = this.$route.params.id;
@@ -400,6 +330,7 @@ export default {
 
             if (e.target.checked) {
                 this.form.materials.push(material);
+
                 //Colors filtred
                 this.form.colors = this.form.colors.filter(color => color.id !== color.id);
                 this.form.materials.forEach(mat => {
@@ -418,20 +349,16 @@ export default {
         cahgeOpenDoors(e, open) {
             if (e.target.checked) {
                 this.form.opens.push(open);
-                this.show.opens.push(open);
             } else {
                 this.form.opens = this.form.opens.filter(op => op.id !== open.id);
-                this.show.opens = this.show.opens.filter(op => op.id !== open.id);
             }
 
         },
         changeThickDoor(e, thick) {
             if (e.target.checked) {
                 this.form.thicks.push(thick);
-                this.show.thicks.push(thick);
             } else {
                 this.form.thicks = this.form.thicks.filter(thi => thi.id !== thick.id);
-                this.show.thicks = this.show.thicks.filter(thi => thi.id !== thick.id);
             }
         },
         changeStatusDoor(e) {
@@ -453,22 +380,26 @@ export default {
                 this.form.thick = thick;
             }
         },
-        сalculateTotalPrice(price) {
-            this.form.total_price = 0;
-            let windowPrice = 0;
-            let soungPrice = 0;
-            if (this.form.window == 'yes') {
-                windowPrice += 600;
+        сalculateTotalPrice() {
+            this.total_price = 0;
+
+            this.total_price += this.form.price;
+            this.total_price += this.form.status.price;
+            this.total_price += this.form.materials[0].price;
+            this.total_price += this.form.color.price;
+            this.total_price += this.form.opens[0].price;
+            this.total_price += this.form.thicks[0].price;
+            if (this.form.window == "yes") {
+                this.total_price += 600;
             }
-            if (this.form.soung == 'yes') {
-                soungPrice += 500;
+            if (this.form.soung == "yes") {
+                this.total_price += 500;
             }
             if (this.form.discount) {
-                this.form.total_price = Math.round(this.form.price + this.form.status.price + this.form.material.price + this.form.color.price + this.form.open.price + this.form.thick.price + windowPrice + soungPrice);
-                this.form.total_price = Math.round(this.form.total_price - (this.form.total_price * this.form.discount / 100));
-                this.price_discount = this.form.total_price;
-            } else {
-                this.form.total_price = Math.round(this.form.price + this.form.status.price + this.form.material.price + this.form.color.price + this.form.open.price + this.form.thick.price + windowPrice + soungPrice);
+                this.total_price = Math.round(this.total_price - (this.total_price * this.form.discount / 100));
+            }
+            if (this.data.custom_price) {
+                this.total_price = this.data.custom_price;
             }
         }
     },
@@ -478,19 +409,22 @@ export default {
     },
     watch: {
         form: {
-            handler(newVal) {
-                if (this.form.discount) {
-                    this.form.price_discount = Math.round(this.form.price - (this.form.price * this.form.discount / 100));
-                }
-                let IsAllPrices = Object.values(this.form).every(item => item !== null);
-                if (IsAllPrices) {
-                    this.show.totalPrice = true;
-                } else {
-                    this.show.totalPrice = false;
-                }
-
-            },
             deep: true,
+            handler(newVal) {
+                if (
+                    newVal['materials'].length !== 0 &&
+                    newVal['opens'].length !== 0 &&
+                    newVal['thicks'].length !== 0 &&
+                    newVal['status'] &&
+                    newVal['price'] &&
+                    newVal['window'] &&
+                    newVal['soung'] &&
+                    newVal['color']
+                ) {
+                    this.сalculateTotalPrice();
+                }
+            }
+
         },
     }
 }
