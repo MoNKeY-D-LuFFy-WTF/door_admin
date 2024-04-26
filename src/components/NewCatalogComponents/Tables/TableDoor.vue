@@ -17,7 +17,7 @@
                         <tr>
                             <th>Id</th>
                             <th>Name</th>
-                            <th>price</th>
+                            <th>price_canv</th>
                             <th>url</th>
                             <th>group-id</th>
                             <th>custom_price</th>
@@ -34,7 +34,7 @@
                             <td>{{ door.catalog_child_id }}</td>
                             <td>{{ door.custom_price || 'null' }}</td>
                             <td>
-                                <router-link class="text-primary" to="/admin/door_combos/1">combo</router-link>
+                                <router-link class="text-primary" :to="`/admin/door_combos/${door.id}`">combo</router-link>
                             </td>
                             <td class="row justify-content-center">
                                 <button @click="action('Изменить', door)"

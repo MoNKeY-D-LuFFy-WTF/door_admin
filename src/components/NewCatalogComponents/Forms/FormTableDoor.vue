@@ -395,9 +395,6 @@ export default {
             if (this.form.soung == "yes") {
                 this.total_price += 500;
             }
-            if (this.form.discount) {
-                this.total_price = Math.round(this.total_price - (this.total_price * this.form.discount / 100));
-            }
             if (this.data.custom_price) {
                 this.total_price = this.data.custom_price;
             }
